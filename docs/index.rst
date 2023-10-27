@@ -12,7 +12,7 @@ Welcome to bpl's documentation!
 
    howto
    users
-
+   tournament
 
 
 Indices and tables

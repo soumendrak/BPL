@@ -269,6 +269,7 @@ tags
 
 # Redis dump file
 dump.rdb
+db_dump/
 
 ### Project template
 bpl/media/
