@@ -5,10 +5,6 @@ from config.settings.base import AUTH_USER_MODEL
 
 class Tournament(models.Model):
     """
-    Tournament 1 <> N Leagues
-    League 1 <> N Franchises
-    Franchise 1 <> N Players
-    Player 1 <> N Matches
     This will be handled by only the super admin
     """
 
@@ -51,10 +47,24 @@ class Player(models.Model):
         return self.player_name
 
 
-class Match(models.Model):
-    match_number = models.IntegerField(unique=True)
-    match_name = models.CharField(max_length=100)
-    match_date = models.DateTimeField()
+class Fixture(models.Model):
+    scorecard_url = models.URLField(max_length=300, unique=True)
+    match_number = models.IntegerField()
+    match_date = models.DateField()
+    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.tournament) + " - " + str(self.match_number) + " - " + str(self.match_date)
+
+    class Meta:
+        verbose_name_plural = "Fixtures"
+        ordering = ["match_number"]
+
+
+class MatchPoint(models.Model):
+    match_name = models.CharField(max_length=100, unique=True)
+    match_date = models.DateField()
     player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
     batting_points = models.IntegerField()
     bowling_points = models.IntegerField()
@@ -66,15 +76,15 @@ class Match(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.match_number) + " - " + str(self.match_number) + str(self.match_date)
+        return str(self.tournament) + " - " + str(self.match_name) + " - " + str(self.match_date)
 
     class Meta:
         verbose_name_plural = "Matches"
-        ordering = ["match_number"]
+        ordering = ["match_date"]
 
 
 class Score(models.Model):
-    match_number = models.ForeignKey(Match, to_field="match_number", on_delete=models.CASCADE)
+    match_name = models.ForeignKey(MatchPoint, to_field="match_name", on_delete=models.CASCADE)
     player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
     power_player = models.BooleanField(default=False)
     score = models.IntegerField()

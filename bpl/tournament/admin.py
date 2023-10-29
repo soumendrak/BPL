@@ -22,9 +22,19 @@ class PlayerAdmin(admin.ModelAdmin):
     list_display = ("player_name", "price", "last_updated")
 
 
-class MatchAdmin(admin.ModelAdmin):
+class FixtureAdmin(admin.ModelAdmin):
     list_display = (
         "match_number",
+        "scorecard_url",
+        "match_date",
+        "tournament",
+        "last_updated",
+    )
+    list_filter = ("match_number", "match_date", "tournament")
+
+
+class MatchPointAdmin(admin.ModelAdmin):
+    list_display = (
         "match_name",
         "match_date",
         "player_name",
@@ -35,12 +45,12 @@ class MatchAdmin(admin.ModelAdmin):
         "total_points",
         "last_updated",
     )
-    list_filter = ("match_number", "match_name", "match_date", "player_name")
+    list_filter = ("match_name", "match_date", "player_name")
 
 
 class ScoreAdmin(admin.ModelAdmin):
     list_display = (
-        "match_number",
+        "match_name",
         "player_name",
         "power_player",
         "score",
@@ -49,7 +59,7 @@ class ScoreAdmin(admin.ModelAdmin):
         "tournament",
         "last_updated",
     )
-    list_filter = ("match_number", "player_name", "franchise", "league", "tournament")
+    list_filter = ("match_name", "player_name", "franchise", "league", "tournament")
 
 
 class StandingAdmin(admin.ModelAdmin):
@@ -61,6 +71,7 @@ admin.site.register(models.Tournament, TournamentAdmin)
 admin.site.register(models.League, LeagueAdmin)
 admin.site.register(models.Franchise, FranchiseAdmin)
 admin.site.register(models.Player, PlayerAdmin)
-admin.site.register(models.Match, MatchAdmin)
+admin.site.register(models.Fixture, FixtureAdmin)
+admin.site.register(models.MatchPoint, MatchPointAdmin)
 admin.site.register(models.Score, ScoreAdmin)
 admin.site.register(models.Standing, StandingAdmin)

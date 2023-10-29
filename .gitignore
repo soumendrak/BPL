@@ -158,6 +158,9 @@ typings/
 !.vscode/extensions.json
 *.code-workspace
 
+### PyCharm template
+.idea/*
+
 # Local History for devcontainer
 .devcontainer/bash_history
 
