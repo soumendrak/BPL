@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Tournaments Dashboard
+{% endblock title %}
+{% block content %}
+  <h1>Tournaments Dashboard</h1>
+  <ul>
+    {% for tournament in tournaments %}<li>{{ tournament }}</li>{% endfor %}
+  </ul>
+{% endblock content %}
