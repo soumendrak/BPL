@@ -15,20 +15,30 @@ class Tournament(models.Model):
     def __str__(self):
         return self.tournament
 
+    class Meta:
+        verbose_name_plural = "Tournaments"
+
 
 class League(models.Model):
     # This will be handled by admin league
     league = models.CharField(max_length=100, unique=True)
+    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.league
 
+    class Meta:
+        verbose_name_plural = "Leagues"
+        ordering = ["league"]
+
 
 class Franchise(models.Model):
     # This will be handled by individual user
     franchise = models.CharField(max_length=100, unique=True)
+    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
     user = models.ForeignKey(AUTH_USER_MODEL, to_field="username", on_delete=models.CASCADE, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
@@ -36,15 +46,26 @@ class Franchise(models.Model):
     def __str__(self):
         return self.franchise
 
+    class Meta:
+        verbose_name_plural = "Franchises"
+        ordering = ["franchise"]
+
 
 class Player(models.Model):
     player_name = models.CharField(max_length=100, unique=True)
+    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
+    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
     price = models.IntegerField(default=10)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.player_name
+
+    class Meta:
+        verbose_name_plural = "Players"
+        ordering = ["player_name"]
 
 
 class Fixture(models.Model):
@@ -96,6 +117,10 @@ class Score(models.Model):
 
     def __str__(self):
         return str(self.franchise) + " - " + str(self.player_name)
+
+    class Meta:
+        verbose_name_plural = "Scores"
+        ordering = ["score"]
 
 
 class Standing(models.Model):

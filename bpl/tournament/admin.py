@@ -1,39 +1,63 @@
+import csv
+
 from django.contrib import admin
+from django.http import HttpResponse
 
 from . import models
 
 
-class TournamentAdmin(admin.ModelAdmin):
+class BaseAdmin(admin.ModelAdmin):
+    list_display = ("last_updated",)
+    actions = ["export_as_csv"]
+
+    @admin.action(description="Export Selected as CSV")
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f"attachment; filename={meta}.csv"
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            _ = writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+
+class TournamentAdmin(BaseAdmin):
     list_display = ("tournament",)
 
 
-class LeagueAdmin(admin.ModelAdmin):
+class LeagueAdmin(BaseAdmin):
     list_display = ("league",)
 
 
-class FranchiseAdmin(admin.ModelAdmin):
+class FranchiseAdmin(BaseAdmin):
     list_display = (
         "franchise",
         "user",
     )
 
 
-class PlayerAdmin(admin.ModelAdmin):
-    list_display = ("player_name", "price", "last_updated")
+class PlayerAdmin(BaseAdmin):
+    list_display = ("player_name", "price", "franchise", "league", "tournament")
+    list_filter = ("franchise", "league", "tournament")
+    list_per_page = 100
 
 
-class FixtureAdmin(admin.ModelAdmin):
+class FixtureAdmin(BaseAdmin):
     list_display = (
         "match_number",
         "scorecard_url",
         "match_date",
         "tournament",
-        "last_updated",
     )
     list_filter = ("match_number", "match_date", "tournament")
 
 
-class MatchPointAdmin(admin.ModelAdmin):
+class MatchPointAdmin(BaseAdmin):
     list_display = (
         "match_name",
         "match_date",
@@ -43,12 +67,11 @@ class MatchPointAdmin(admin.ModelAdmin):
         "fielding_points",
         "pom_points",
         "total_points",
-        "last_updated",
     )
     list_filter = ("match_name", "match_date", "player_name")
 
 
-class ScoreAdmin(admin.ModelAdmin):
+class ScoreAdmin(BaseAdmin):
     list_display = (
         "match_name",
         "player_name",
@@ -57,13 +80,12 @@ class ScoreAdmin(admin.ModelAdmin):
         "franchise",
         "league",
         "tournament",
-        "last_updated",
     )
     list_filter = ("match_name", "player_name", "franchise", "league", "tournament")
 
 
-class StandingAdmin(admin.ModelAdmin):
-    list_display = ("tournament", "league", "franchise", "points", "last_updated")
+class StandingAdmin(BaseAdmin):
+    list_display = ("tournament", "league", "franchise", "points")
     list_filter = ("franchise", "league", "tournament")
 
 
