@@ -219,19 +219,25 @@ class Bowling:
         )
         # Drop following columns
         # M, 0s, W, NB, WD, ECON
-        self.bowling_df.drop(columns=["M", "0s", "W", "NB", "WD", "ECON", "4s", "6s"], inplace=True)
+        # self.bowling_df.drop(columns=["M", "0s", "W", "NB", "WD", "ECON", "4s", "6s"], inplace=True)
         return self.bowling_df
 
 
 if __name__ == "__main__":
     url = (
-        "https://www.espncricinfo.com/series/icc-cricket-world-cup-2023-24-1367856/india-vs-england-29th-match"
-        "-1384420/full-scorecard"
+        "https://www.espncricinfo.com/series/icc-cricket-world-cup-2023-24-1367856/afghanistan-vs-australia-39th"
+        "-match-1384430/full-scorecard"
     )
     dfs = read_webpage(url)
-    batting = Batting(dfs[0])
-    batting.batting_preprocessing()
-    print(batting.batting_score_calculation())
-    bowling = Bowling(dfs[1])
-    bowling.bowling_preprocessing()
-    print(bowling.bowling_score_calculation())
+    first_batting = Batting(dfs[0])
+    first_batting.batting_preprocessing()
+    print(first_batting.batting_score_calculation())
+    first_bowling = Bowling(dfs[1])
+    first_bowling.bowling_preprocessing()
+    print(first_bowling.bowling_score_calculation())
+    second_batting = Batting(dfs[2])
+    second_batting.batting_preprocessing()
+    print(second_batting.batting_score_calculation())
+    second_bowling = Bowling(dfs[3])
+    second_bowling.bowling_preprocessing()
+    print(second_bowling.bowling_score_calculation())

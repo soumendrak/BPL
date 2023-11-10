@@ -31,20 +31,25 @@ class TournamentAdmin(BaseAdmin):
 
 
 class LeagueAdmin(BaseAdmin):
-    list_display = ("league",)
+    list_display = (
+        "league",
+        "tournament",
+    )
 
 
 class FranchiseAdmin(BaseAdmin):
     list_display = (
         "franchise",
         "user",
+        "league",
+        "tournament",
     )
 
 
 class PlayerAdmin(BaseAdmin):
     list_display = ("player_name", "price", "franchise", "league", "tournament")
     list_filter = ("franchise", "league", "tournament")
-    list_per_page = 100
+    list_per_page = 50
 
 
 class FixtureAdmin(BaseAdmin):
