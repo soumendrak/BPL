@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Match Points
+{% endblock title %}
+{% block content %}
+  <h1>Match Points</h1>
+  <p>Here are the tournaments that have match points:</p>
+  <button type="button"
+          class="btn btn-primary"
+          onclick="window.location.href='/matchpoints'">Compute Match Points</button>
+  {% for player in match_points %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Player Name</th>
+          <th>Match Date</th>
+          <th>Batting Points</th>
+          <th>Bowling Points</th>
+          <th>POM Points</th>
+          <th>Total Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ player.player_name }}</td>
+          <td>{{ player.match_date }}</td>
+          <td>{{ player.batting_points }}</td>
+          <td>{{ player.bowling_points }}</td>
+          <td>{{ player.pom_points }}</td>
+          <td>{{ player.total_points }}</td>
+        </tr>
+      </tbody>
+    </table>
+  {% endfor %}
+{% endblock content %}

@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 
 import pandas as pd
@@ -61,25 +62,32 @@ class Batting:
             print(f"invalid {runs=}")
 
     def batting_preprocessing(self):
-        column_mapping = {1: "Incident"}
-        self.batting_df.rename(columns=column_mapping, inplace=True)
-        self.batting_df = self.batting_df.dropna(how="all").reset_index(drop=True)
+        logging.info("Batting dataframe preprocessing started")
+        try:
+            column_mapping = {1: "Incident"}
+            self.batting_df.rename(columns=column_mapping, inplace=True)
+            self.batting_df = self.batting_df.dropna(how="all").reset_index(drop=True)
+            # assign a column name to the unnamed column
+            self.batting_df.rename(columns={self.batting_df.columns[1]: "Incident"}, inplace=True)
+            # Delete the unnamed columns
+            self.batting_df.drop(self.batting_df.filter(regex="Unname"), axis=1, inplace=True)
+            # self.batting_df = self.batting_df.loc[:, ~self.batting_df.columns.str.contains("^Unnamed")]
 
-        # assign a column name to the unnamed column
-        self.batting_df.rename(columns={self.batting_df.columns[1]: "Incident"}, inplace=True)
-        # Delete the unnamed columns
-        self.batting_df = self.batting_df.loc[:, ~self.batting_df.columns.str.contains("^Unnamed")]
+            # Delete the last three rows
+            # Get the index of the first occurrence of 'Extras' in the 'BATTING' column
+            index = (self.batting_df["BATTING"] == "Extras").idxmax()
+            # Select all rows up to (but not including) the row with 'Extras'
+            self.batting_df = self.batting_df.iloc[:index]
 
-        # Delete the last three rows
-        # Get the index of the first occurrence of 'Extras' in the 'BATTING' column
-        index = (self.batting_df["BATTING"] == "Extras").idxmax()
-        # Select all rows up to (but not including) the row with 'Extras'
-        self.batting_df = self.batting_df.iloc[:index]
-
-        self.batting_df["Catch"] = self.batting_df["Incident"].str.extract(r"(?<=c\s)(.*)(?=\sb\s)")
-        self.batting_df["Bowled"] = self.batting_df["Incident"].str.extract(r"(?<=\sb\s)(.*)")
-        self.batting_df["Run Out"] = self.batting_df["Incident"].str.extract(r"(?<=run out \()(.*)(?=\))")
-        self.batting_df["SR"] = self.batting_df["SR"].str.replace(r"-", "0")
+            self.batting_df["Catch"] = self.batting_df["Incident"].str.extract(r"(?<=c\s)(.*)(?=\sb\s)")
+            self.batting_df["Bowled"] = self.batting_df["Incident"].str.extract(r"(?<=\sb\s)(.*)")
+            self.batting_df["Run Out"] = self.batting_df["Incident"].str.extract(r"(?<=run out \()(.*)(?=\))")
+            self.batting_df["SR"] = self.batting_df["SR"].str.replace(r"-", "0")
+            self.batting_df["BATTING"] = self.batting_df["BATTING"].str.replace(r"\(c\)|\†", "", regex=True)
+            self.batting_df["BATTING"] = self.batting_df["BATTING"].str.strip()
+        except Exception as e:
+            logging.error(e)
+        logging.info("Batting dataframe preprocessing completed")
 
     def batting_score_calculation(self):
         # Calculate the points of the batsman by the following functions and add a column to the dataframe
@@ -106,6 +114,7 @@ class Batting:
         self.batting_df.drop(columns=["R", "4s", "6s", "SR", "B", "M", "Fours", "Sixes", "Strike Rate"], inplace=True)
         self.batting_df.drop(columns=["Incident", "Catch", "Bowled", "Run Out"], inplace=True)
         self.batting_df.reset_index(drop=True, inplace=True)
+        logging.info("Batting score calculation completed")
         return self.batting_df
 
 
@@ -190,6 +199,8 @@ class Bowling:
         self.bowling_df.loc[:, "WD"] = self.bowling_df["WD"].astype(int, errors="ignore")
         self.bowling_df.loc[:, "ECON"] = self.bowling_df["ECON"].astype(float, errors="ignore")
 
+        logging.info("Bowling dataframe preprocessing completed")
+
         return self.bowling_df
 
     def bowling_score_calculation(self):
@@ -220,24 +231,25 @@ class Bowling:
         # Drop following columns
         # M, 0s, W, NB, WD, ECON
         # self.bowling_df.drop(columns=["M", "0s", "W", "NB", "WD", "ECON", "4s", "6s"], inplace=True)
+        logging.info("Bowling score calculation completed")
         return self.bowling_df
 
 
-if __name__ == "__main__":
-    url = (
-        "https://www.espncricinfo.com/series/icc-cricket-world-cup-2023-24-1367856/afghanistan-vs-australia-39th"
-        "-match-1384430/full-scorecard"
-    )
-    dfs = read_webpage(url)
-    first_batting = Batting(dfs[0])
-    first_batting.batting_preprocessing()
-    print(first_batting.batting_score_calculation())
-    first_bowling = Bowling(dfs[1])
-    first_bowling.bowling_preprocessing()
-    print(first_bowling.bowling_score_calculation())
-    second_batting = Batting(dfs[2])
-    second_batting.batting_preprocessing()
-    print(second_batting.batting_score_calculation())
-    second_bowling = Bowling(dfs[3])
-    second_bowling.bowling_preprocessing()
-    print(second_bowling.bowling_score_calculation())
+# if __name__ == "__main__":
+#     url = (
+#         "https://www.espncricinfo.com/series/icc-cricket-world-cup-2023-24-1367856/afghanistan-vs-south-africa-42nd"
+#         "-match-1384433/full-scorecard"
+#     )
+#     dfs = read_webpage(url)
+#     first_batting = Batting(dfs[0])
+#     first_batting.batting_preprocessing()
+#     print(first_batting.batting_score_calculation())
+#     first_bowling = Bowling(dfs[1])
+#     first_bowling.bowling_preprocessing()
+#     print(first_bowling.bowling_score_calculation())
+#     second_batting = Batting(dfs[2])
+#     second_batting.batting_preprocessing()
+#     print(second_batting.batting_score_calculation())
+#     second_bowling = Bowling(dfs[3])
+#     second_bowling.bowling_preprocessing()
+#     print(second_bowling.bowling_score_calculation())

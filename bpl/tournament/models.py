@@ -84,13 +84,13 @@ class Fixture(models.Model):
 
 
 class MatchPoint(models.Model):
-    match_name = models.CharField(max_length=100, unique=True)
+    match_name = models.CharField(max_length=100)
     match_date = models.DateField()
     player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
     batting_points = models.IntegerField()
     bowling_points = models.IntegerField()
     fielding_points = models.IntegerField()
-    pom_points = models.IntegerField()
+    pom_points = models.IntegerField(null=True, blank=True)
     total_points = models.IntegerField()
     tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
@@ -101,11 +101,12 @@ class MatchPoint(models.Model):
 
     class Meta:
         verbose_name_plural = "Matches"
-        ordering = ["match_date"]
+        ordering = ["match_date", "total_points"]
+        unique_together = ("player_name", "match_date")
 
 
 class Score(models.Model):
-    match_name = models.ForeignKey(MatchPoint, to_field="match_name", on_delete=models.CASCADE)
+    match_name = models.CharField(max_length=100)
     player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
     power_player = models.BooleanField(default=False)
     score = models.IntegerField()
