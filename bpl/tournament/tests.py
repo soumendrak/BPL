@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from models import Fixture
 
-from .db_write import get_scorecard_url
+from .match_point_handler import get_scorecard_url
 
 
 @pytest.mark.django_db

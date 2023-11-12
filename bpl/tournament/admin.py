@@ -47,8 +47,8 @@ class FranchiseAdmin(BaseAdmin):
 
 
 class PlayerAdmin(BaseAdmin):
-    list_display = ("player_name", "price", "franchise", "league", "tournament")
-    list_filter = ("franchise", "league", "tournament")
+    list_display = ("player_name", "price", "franchise", "league", "tournament", "power_player")
+    list_filter = ("franchise", "league", "tournament", "power_player")
     list_per_page = 50
 
 
@@ -64,7 +64,8 @@ class FixtureAdmin(BaseAdmin):
 
 class MatchPointAdmin(BaseAdmin):
     list_display = (
-        "match_name",
+        "league",
+        "franchise",
         "match_date",
         "player_name",
         "batting_points",
@@ -73,14 +74,20 @@ class MatchPointAdmin(BaseAdmin):
         "pom_points",
         "total_points",
     )
-    list_filter = ("match_name", "match_date", "player_name")
+    list_filter = (
+        "match_name",
+        "match_date",
+        "player_name",
+        "league",
+        "franchise",
+        "tournament",
+    )
 
 
 class ScoreAdmin(BaseAdmin):
     list_display = (
         "match_name",
         "player_name",
-        "power_player",
         "score",
         "franchise",
         "league",

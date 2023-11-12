@@ -56,6 +56,7 @@ class Player(models.Model):
     franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
     league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
+    power_player = models.BooleanField(default=False)
     price = models.IntegerField(default=10)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
@@ -92,24 +93,25 @@ class MatchPoint(models.Model):
     fielding_points = models.IntegerField()
     pom_points = models.IntegerField(null=True, blank=True)
     total_points = models.IntegerField()
+    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE, default="Banaas Premier League")
+    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.tournament) + " - " + str(self.match_name) + " - " + str(self.match_date)
+        return str(self.league) + " - " + str(self.match_name) + " - " + str(self.match_date)
 
     class Meta:
         verbose_name_plural = "Matches"
         ordering = ["match_date", "total_points"]
-        unique_together = ("player_name", "match_date")
+        unique_together = ("player_name", "match_date", "league")
 
 
 class Score(models.Model):
     match_name = models.CharField(max_length=100)
+    score = models.IntegerField(null=True, blank=True, default=0)
     player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
-    power_player = models.BooleanField(default=False)
-    score = models.IntegerField()
     franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
     league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)

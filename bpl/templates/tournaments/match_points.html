@@ -8,21 +8,25 @@
   <p>Here are the tournaments that have match points:</p>
   <button type="button"
           class="btn btn-primary"
-          onclick="window.location.href='/matchpoints'">Compute Match Points</button>
-  {% for player in match_points %}
-    <table class="table table-striped">
-      <thead>
+          onclick="window.location.href='/matchpoints'">Refresh</button>
+  <table id="matchPointsTable" class="table table-striped">
+    <thead>
+      <tr>
+        <th>League</th>
+        <th>Franchise</th>
+        <th>Player Name</th>
+        <th>Match Date</th>
+        <th>Batting Points</th>
+        <th>Bowling Points</th>
+        <th>POM Points</th>
+        <th>Total Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in match_points %}
         <tr>
-          <th>Player Name</th>
-          <th>Match Date</th>
-          <th>Batting Points</th>
-          <th>Bowling Points</th>
-          <th>POM Points</th>
-          <th>Total Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
+          <td>{{ player.league }}</td>
+          <td>{{ player.franchise }}</td>
           <td>{{ player.player_name }}</td>
           <td>{{ player.match_date }}</td>
           <td>{{ player.batting_points }}</td>
@@ -30,7 +34,55 @@
           <td>{{ player.pom_points }}</td>
           <td>{{ player.total_points }}</td>
         </tr>
-      </tbody>
-    </table>
-  {% endfor %}
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>League</th>
+        <th>Franchise</th>
+        <th>Player Name</th>
+        <th>Match Date</th>
+        <th>Batting Points</th>
+        <th>Bowling Points</th>
+        <th>POM Points</th>
+        <th>Total Points</th>
+      </tr>
+    </tfoot>
+  </table>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet"
+        type="text/css"
+        href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css" />
+  <link rel="stylesheet"
+        type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css" />
+  <script type="text/javascript"
+          charset="utf8"
+          src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js">
+  </script>
+  <script>
+    $(document).ready(function() {
+      var table = $('#matchPointsTable').DataTable();
+
+      table.columns().every(function() {
+        var column = this;
+        var select = $('<select><option value=""></option></select>')
+          .appendTo($(column.footer()).empty())
+          .on('change', function() {
+            var val = $.fn.dataTable.util.escapeRegex(
+              $(this).val()
+            );
+
+            column
+              .search(val ? '^' + val + '$' : '', true, false)
+              .draw();
+          });
+
+        column.data().unique().sort().each(function(d, j) {
+          select.append('<option value="' + d + '">' + d + '</option>')
+        });
+      });
+    });
+  </script>
 {% endblock content %}
