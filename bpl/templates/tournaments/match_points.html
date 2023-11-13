@@ -5,10 +5,11 @@
 {% endblock title %}
 {% block content %}
   <h1>Match Points</h1>
-  <p>Here are the tournaments that have match points:</p>
+  <p>Here are the match points:</p>
+  <input type="date" id="matchDate" />
   <button type="button"
           class="btn btn-primary"
-          onclick="window.location.href='/matchpoints'">Refresh</button>
+          onclick="redirectToMatchPoints();">Refresh</button>
   <table id="matchPointsTable" class="table table-striped">
     <thead>
       <tr>
@@ -60,6 +61,12 @@
           charset="utf8"
           src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
   <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js">
+  </script>
+  <script>
+    function redirectToMatchPoints() {
+      var date = document.getElementById('matchDate').value;
+      window.location.href = '/matchpoints/?date=' + date;
+    }
   </script>
   <script>
     $(document).ready(function() {

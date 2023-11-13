@@ -8,5 +8,12 @@
   <ul>
     {% for tournament in tournaments %}<li>{{ tournament }}</li>{% endfor %}
   </ul>
-  <button onclick="window.location.href = '/matchpoints/';">All Match Points</button>
+  <input type="date" id="matchDate" />
+  <button onclick="redirectToMatchPoints();">All Match Points</button>
+  <script>
+    function redirectToMatchPoints() {
+      var date = document.getElementById('matchDate').value;
+      window.location.href = '/matchpoints/?date=' + date;
+    }
+  </script>
 {% endblock content %}

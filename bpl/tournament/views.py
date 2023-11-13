@@ -18,7 +18,7 @@ def tournaments_list(request):
 @login_required
 @require_http_methods(["GET"])
 def match_points(request):
+    date = request.GET.get("date", today())
     prepare_final_match_point_df(request)
-    # yesterday = datetime.now() - timedelta(days=1)
-    _match_points = MatchPoint.objects.filter(match_date=today()).order_by("-total_points")
+    _match_points = MatchPoint.objects.filter(match_date=date).order_by("-total_points")
     return render(request, "tournaments/match_points.html", context={"match_points": _match_points})

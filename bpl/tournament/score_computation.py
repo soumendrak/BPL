@@ -118,6 +118,17 @@ class Batting:
         return self.batting_df
 
 
+def get_player_of_the_match(pom_df) -> str:
+    try:
+        pom = pom_df.loc[pom_df[0] == "Player Of The Match"][1]
+        pom = pom.to_string(index=False)
+        logging.info(f"{pom=}")
+    except KeyError as e:
+        pom = ""
+        logging.info(f"{pom=} is not yet available due to {e}")
+    return pom
+
+
 @dataclass
 class Bowling:
     bowling_df: pd.DataFrame = None
