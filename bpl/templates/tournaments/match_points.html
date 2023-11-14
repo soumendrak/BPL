@@ -39,14 +39,14 @@
     </tbody>
     <tfoot>
       <tr>
-        <th>League</th>
-        <th>Franchise</th>
-        <th>Player Name</th>
-        <th>Match Date</th>
-        <th>Batting Points</th>
-        <th>Bowling Points</th>
-        <th>POM Points</th>
-        <th>Total Points</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>Total Points:</th>
       </tr>
     </tfoot>
   </table>
@@ -70,25 +70,60 @@
   </script>
   <script>
     $(document).ready(function() {
-      var table = $('#matchPointsTable').DataTable();
+      var table = $('#matchPointsTable').DataTable({
+        "pageLength": 25,
+        "footerCallback": function(row, data, start, end, display) {
+          var api = this.api(),
+            data;
 
-      table.columns().every(function() {
-        var column = this;
-        var select = $('<select><option value=""></option></select>')
-          .appendTo($(column.footer()).empty())
-          .on('change', function() {
-            var val = $.fn.dataTable.util.escapeRegex(
-              $(this).val()
-            );
+          var intVal = function(i) {
+            return typeof i === 'string' ?
+              i.replace(/[\$,]/g, '') * 1 :
+              typeof i === 'number' ?
+              i : 0;
+          };
 
-            column
-              .search(val ? '^' + val + '$' : '', true, false)
-              .draw();
+          total = api
+            .column(7)
+            .data()
+            .reduce(function(a, b) {
+              return intVal(a) + intVal(b);
+            }, 0);
+
+          pageTotal = api
+            .column(7, {
+              page: 'current'
+            })
+            .data()
+            .reduce(function(a, b) {
+              return intVal(a) + intVal(b);
+            }, 0);
+
+          $(api.column(7).footer()).html(
+            pageTotal
+          );
+        }
+      });
+
+      table.columns().every(function(index) {
+        if (index < 4) {
+          var column = this;
+          var select = $('<select><option value=""></option></select>')
+            .appendTo($(column.footer()).empty())
+            .on('change', function() {
+              var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+              );
+
+              column
+                .search(val ? '^' + val + '$' : '', true, false)
+                .draw();
+            });
+
+          column.data().unique().sort().each(function(d, j) {
+            select.append('<option value="' + d + '">' + d + '</option>')
           });
-
-        column.data().unique().sort().each(function(d, j) {
-          select.append('<option value="' + d + '">' + d + '</option>')
-        });
+        }
       });
     });
   </script>
