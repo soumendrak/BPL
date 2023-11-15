@@ -44,7 +44,7 @@ class Franchise(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.franchise
+        return str(self.franchise)
 
     class Meta:
         verbose_name_plural = "Franchises"
@@ -135,7 +135,7 @@ class Standing(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.franchise
+        return str(self.franchise) + " - " + str(self.league) + " - " + str(self.tournament)
 
     class Meta:
         verbose_name_plural = "Standings"

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Match Points
+{% endblock title %}
+{% block content %}
+  <h1>Standing</h1>
+  <p>Here are the Standings of the franchises:</p>
+  <button type="button"
+          class="btn btn-primary"
+          onclick="redirectToMatchPoints();">Refresh</button>
+  <table id="StandingTable" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Tournament</th>
+        <th>League</th>
+        <th>Franchise</th>
+        <th>Total Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for franchise in standing %}
+        <tr>
+          <td>{{ franchise.tournament_id }}</td>
+          <td>{{ franchise.league_id }}</td>
+          <td>{{ franchise.franchise_id }}</td>
+          <td>{{ franchise.points }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet"
+        type="text/css"
+        href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css" />
+  <link rel="stylesheet"
+        type="text/css"
+        href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css" />
+  <script type="text/javascript"
+          charset="utf8"
+          src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js">
+  </script>
+  <script>
+    function redirectToMatchPoints() {
+      window.location.href = '/standing';
+    }
+  </script>
+  <script>
+    $(document).ready(function() {
+      $('#StandingTable').DataTable({
+        responsive: true,
+        "order": [
+          [3, "desc"]
+        ]
+      });
+    });
+  </script>
+{% endblock content %}

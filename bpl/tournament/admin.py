@@ -50,6 +50,7 @@ class PlayerAdmin(BaseAdmin):
     list_display = ("player_name", "price", "franchise", "league", "tournament", "power_player")
     list_filter = ("franchise", "league", "tournament", "power_player")
     list_per_page = 50
+    search_fields = ("player_name",)
 
 
 class FixtureAdmin(BaseAdmin):

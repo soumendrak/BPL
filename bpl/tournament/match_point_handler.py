@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from functools import lru_cache
 
 import pandas as pd
 from dateutil.utils import today
@@ -57,8 +58,15 @@ def fetch_players() -> pd.DataFrame:
     return pd.DataFrame.from_records(Player.objects.all().values())
 
 
+@lru_cache(maxsize=30)
+def fetch_power_players() -> set[str]:
+    # Read `player_name` column from player table
+    return {x["player_name"] for x in Player.objects.filter(power_player=True).values()}
+
+
 def prepare_final_match_point_df(request) -> None:
     date = request.GET.get("date", today())
+    power_players = fetch_power_players()
     merged_df = fetch_players()
     for scorecard_url in get_scorecard_url(date):
         dfs = get_dataframe_from_url(scorecard_url)
@@ -94,7 +102,9 @@ def prepare_final_match_point_df(request) -> None:
                 + match_point_model.fielding_points
                 + match_point_model.pom_points
             )
-            # match_point_model.save()
+            if str(match_point_model.player_name) in power_players:
+                print(f"{match_point_model.player_name} is power player")
+                match_point_model.total_points = match_point_model.total_points * 2
             match_point, created = MatchPoint.objects.update_or_create(
                 match_date=match_point_model.match_date,
                 player_name=match_point_model.player_name,
