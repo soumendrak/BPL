@@ -19,7 +19,6 @@
         <th>Match Date</th>
         <th>Batting Points</th>
         <th>Bowling Points</th>
-        <th>POM Points</th>
         <th>Total Points</th>
       </tr>
     </thead>
@@ -32,14 +31,12 @@
           <td>{{ player.match_date }}</td>
           <td>{{ player.batting_points }}</td>
           <td>{{ player.bowling_points }}</td>
-          <td>{{ player.pom_points }}</td>
           <td>{{ player.total_points }}</td>
         </tr>
       {% endfor %}
     </tbody>
     <tfoot>
       <tr>
-        <th></th>
         <th></th>
         <th></th>
         <th></th>
@@ -91,14 +88,14 @@
           };
 
           total = api
-            .column(7)
+            .column(6)
             .data()
             .reduce(function(a, b) {
               return intVal(a) + intVal(b);
             }, 0);
 
           pageTotal = api
-            .column(7, {
+            .column(6, {
               page: 'current'
             })
             .data()
@@ -106,14 +103,14 @@
               return intVal(a) + intVal(b);
             }, 0);
 
-          $(api.column(7).footer()).html(
+          $(api.column(6).footer()).html(
             pageTotal
           );
         }
       });
 
       table.columns().every(function(index) {
-        if (index < 4) {
+        if (index < 2) {
           var column = this;
           var select = $('<select><option value=""></option></select>')
             .appendTo($(column.footer()).empty())

@@ -29,6 +29,7 @@ def match_points(request):
 @login_required
 @require_http_methods(["GET"])
 def standing(request):
-    standing = fetch_standings()
+    standing = fetch_standings(request)
+    # standing = standing.to_html(index=False)
     print(f"standing: {standing}")
     return render(request, "tournaments/standing.html", context={"standing": standing})

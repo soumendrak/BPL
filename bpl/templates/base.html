@@ -54,6 +54,9 @@
                 <a class="nav-link" href="{% url 'standing' %}">Standing</a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="{% url 'matchpoints' %}">MatchPoint</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="{% url 'about' %}">About</a>
               </li>
               {% if request.user.is_authenticated %}
