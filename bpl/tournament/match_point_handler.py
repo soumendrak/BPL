@@ -4,6 +4,7 @@ from functools import lru_cache
 
 import pandas as pd
 from dateutil.utils import today
+from pandas import DataFrame
 
 from .models import Fixture, Franchise, League, MatchPoint, Player, Tournament
 from .score_computation import Batting, Bowling, get_player_of_the_match, read_webpage
@@ -26,15 +27,18 @@ def get_dataframe_from_url(url) -> list[pd.DataFrame]:
     return dfs
 
 
-def scorecard_url_to_score(dfs) -> tuple[pd.DataFrame]:
+def scorecard_url_to_score(dfs) -> tuple[DataFrame, DataFrame, DataFrame, DataFrame, DataFrame, DataFrame]:
     first_batting_df = pd.DataFrame()
     first_bowling_df = pd.DataFrame()
     second_batting_df = pd.DataFrame()
     second_bowling_df = pd.DataFrame()
+    first_fielding_df = pd.DataFrame()
+    second_fielding_df = pd.DataFrame()
     try:
         first_batting = Batting(dfs[0])
         first_batting.batting_preprocessing()
         first_batting_df = first_batting.batting_score_calculation()
+        # first_fielding_df: pd.DataFrame = first_batting_df[["Catch", "Run Out"]].copy()
         first_bowling = Bowling(dfs[1])
         first_bowling.bowling_preprocessing()
         first_bowling_df = first_bowling.bowling_score_calculation()
@@ -42,15 +46,20 @@ def scorecard_url_to_score(dfs) -> tuple[pd.DataFrame]:
             second_batting = Batting(dfs[2])
             second_batting.batting_preprocessing()
             second_batting_df = second_batting.batting_score_calculation()
+            # second_fielding_df: pd.DataFrame = second_batting_df[["Catch", "Run Out"]].copy()
             second_bowling = Bowling(dfs[3])
             second_bowling.bowling_preprocessing()
             second_bowling_df = second_bowling.bowling_score_calculation()
-        else:
-            second_batting_df = pd.DataFrame()
-            second_bowling_df = pd.DataFrame()
     except Exception as e:
         print(e)
-    return first_batting_df, first_bowling_df, second_batting_df, second_bowling_df
+    return (
+        first_batting_df,
+        first_bowling_df,
+        second_batting_df,
+        second_bowling_df,
+        first_fielding_df,
+        second_fielding_df,
+    )
 
 
 def fetch_players() -> pd.DataFrame:
@@ -65,6 +74,7 @@ def fetch_power_players() -> set[str]:
 
 
 def prepare_final_match_point_df(request) -> None:
+    # Catch: 5, Run out and Stumping: 10
     date = request.GET.get("date", today())
     power_players = fetch_power_players()
     merged_df = fetch_players()
@@ -74,6 +84,7 @@ def prepare_final_match_point_df(request) -> None:
         # Iterates over each match scorecard
         batting_df = pd.concat([match_scorecard[0], match_scorecard[2]], ignore_index=True)
         bowling_df = pd.concat([match_scorecard[1], match_scorecard[3]], ignore_index=True)
+        # fielding_df = pd.concat([match_scorecard[4], match_scorecard[5]], ignore_index=True)
         merged_df = pd.merge(merged_df, batting_df, how="outer", left_on="player_name", right_on="BATTING")
         merged_df = pd.merge(merged_df, bowling_df, how="outer", left_on="player_name", right_on="BOWLING")
         merged_df = merged_df.dropna(subset=["Total Batting", "Total Bowling"], how="all").reset_index(drop=True)
@@ -93,7 +104,7 @@ def prepare_final_match_point_df(request) -> None:
             match_point_model.fielding_points = row["Total Fielding"] if "Total Fielding" in merged_df.columns else 0
             if str(match_point_model.player_name).lower().strip() == player_of_the_match.lower().strip():
                 logging.info(f"{match_point_model.player_name} is player of the match")
-                match_point_model.pom_points = 50
+                match_point_model.pom_points = 35
             else:
                 match_point_model.pom_points = 0
             match_point_model.total_points = (

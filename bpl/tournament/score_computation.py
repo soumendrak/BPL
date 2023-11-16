@@ -89,7 +89,7 @@ class Batting:
             logging.error(e)
         logging.info("Batting dataframe preprocessing completed")
 
-    def batting_score_calculation(self):
+    def batting_score_calculation(self) -> pd.DataFrame:
         # Calculate the points of the batsman by the following functions and add a column to the dataframe
         # individual_batting(runs: int, fours: int, sixes: int) -> int
         # sr_batting(strike_rate: int) -> int
@@ -214,7 +214,7 @@ class Bowling:
 
         return self.bowling_df
 
-    def bowling_score_calculation(self):
+    def bowling_score_calculation(self) -> pd.DataFrame:
         self.bowling_df.loc[:, "Maiden Points"] = self.bowling_df.apply(lambda row: self.maiden(row["M"]), axis=1)
         self.bowling_df.loc[:, "Dot Ball Points"] = self.bowling_df.apply(lambda row: self.dot_ball(row["0s"]), axis=1)
         self.bowling_df.loc[:, "Wickets Points"] = self.bowling_df.apply(lambda row: self.wicket(row["W"]), axis=1)
