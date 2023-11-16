@@ -27,79 +27,65 @@ class BaseAdmin(admin.ModelAdmin):
 
 
 class TournamentAdmin(BaseAdmin):
-    list_display = ("tournament",)
+    list_display = ("tournament_name",)
 
 
 class LeagueAdmin(BaseAdmin):
-    list_display = (
-        "league",
-        "tournament",
-    )
+    list_display = ("league_name",)
 
 
 class FranchiseAdmin(BaseAdmin):
+    list_display = ("franchise_name",)
+
+
+class PlayerProfileAdmin(BaseAdmin):
     list_display = (
-        "franchise",
-        "user",
-        "league",
-        "tournament",
+        "player_name",
+        "country",
+        "player_role",
+        "profile_link",
     )
-
-
-class PlayerAdmin(BaseAdmin):
-    list_display = ("player_name", "price", "franchise", "league", "tournament", "power_player")
-    list_filter = ("franchise", "league", "tournament", "power_player")
-    list_per_page = 50
-    search_fields = ("player_name",)
 
 
 class FixtureAdmin(BaseAdmin):
     list_display = (
-        "match_number",
         "scorecard_url",
         "match_date",
-        "tournament",
+        "tournament_name",
     )
-    list_filter = ("match_number", "match_date", "tournament")
+    list_filter = ("match_date", "tournament_name")
+
+
+class PlayerAdmin(BaseAdmin):
+    list_display = ("player_name", "price", "franchise_name", "league_name", "tournament_name", "power_player")
+    list_filter = ("franchise_name", "league_name", "tournament_name", "power_player")
+    list_per_page = 50
+    search_fields = ("player_name",)
 
 
 class MatchPointAdmin(BaseAdmin):
     list_display = (
-        "league",
-        "franchise",
+        "league_name",
+        "franchise_name",
         "match_date",
         "player_name",
         "batting_points",
         "bowling_points",
         "fielding_points",
-        "pom_points",
         "total_points",
     )
     list_filter = (
-        "match_name",
         "match_date",
         "player_name",
-        "league",
-        "franchise",
-        "tournament",
+        "league_name",
+        "franchise_name",
+        "tournament_name",
     )
-
-
-class ScoreAdmin(BaseAdmin):
-    list_display = (
-        "match_name",
-        "player_name",
-        "score",
-        "franchise",
-        "league",
-        "tournament",
-    )
-    list_filter = ("match_name", "player_name", "franchise", "league", "tournament")
 
 
 class StandingAdmin(BaseAdmin):
-    list_display = ("tournament", "league", "franchise", "points")
-    list_filter = ("franchise", "league", "tournament")
+    list_display = ("tournament_name", "league_name", "franchise_name", "points")
+    list_filter = ("franchise_name", "league_name", "tournament_name")
 
 
 admin.site.register(models.Tournament, TournamentAdmin)
@@ -108,5 +94,5 @@ admin.site.register(models.Franchise, FranchiseAdmin)
 admin.site.register(models.Player, PlayerAdmin)
 admin.site.register(models.Fixture, FixtureAdmin)
 admin.site.register(models.MatchPoint, MatchPointAdmin)
-admin.site.register(models.Score, ScoreAdmin)
 admin.site.register(models.Standing, StandingAdmin)
+admin.site.register(models.PlayerProfile, PlayerProfileAdmin)

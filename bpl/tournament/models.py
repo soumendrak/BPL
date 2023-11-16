@@ -1,6 +1,5 @@
 from django.db import models
-
-from config.settings.base import AUTH_USER_MODEL
+from django.utils import timezone
 
 
 class Tournament(models.Model):
@@ -8,135 +7,164 @@ class Tournament(models.Model):
     This will be handled by only the super admin
     """
 
-    tournament = models.CharField(max_length=100, unique=True)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+    tournament_name = models.CharField(max_length=100, primary_key=True)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return self.tournament
+        return self.tournament_name
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.tournament_name=}>"
 
     class Meta:
         verbose_name_plural = "Tournaments"
 
 
 class League(models.Model):
-    # This will be handled by admin league
-    league = models.CharField(max_length=100, unique=True)
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+    # This will be handled by admin league_name
+    league_name = models.CharField(max_length=100, primary_key=True)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return self.league
+        return self.league_name
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.league_name=}>"
 
     class Meta:
         verbose_name_plural = "Leagues"
-        ordering = ["league"]
+        ordering = ["league_name"]
 
 
 class Franchise(models.Model):
     # This will be handled by individual user
-    franchise = models.CharField(max_length=100, unique=True)
-    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    user = models.ForeignKey(AUTH_USER_MODEL, to_field="username", on_delete=models.CASCADE, null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+    franchise_name = models.CharField(max_length=100, primary_key=True)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return str(self.franchise)
+        return str(self.franchise_name)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.franchise_name=}>"
 
     class Meta:
         verbose_name_plural = "Franchises"
-        ordering = ["franchise"]
+        ordering = ["franchise_name"]
 
 
-class Player(models.Model):
-    player_name = models.CharField(max_length=100, unique=True)
-    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
-    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    power_player = models.BooleanField(default=False)
-    price = models.IntegerField(default=10)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+class PlayerProfile(models.Model):
+    player_name = models.CharField(max_length=100, primary_key=True)
+    profile_link = models.URLField(max_length=300, unique=True, blank=True, null=True, default=None)
+    country = models.CharField(max_length=100, blank=True, null=True, default=None)
+    player_role = models.CharField(max_length=100, blank=True, null=True, default=None)  # TODO: Make it a choice field
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
         return self.player_name
 
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.player_name=} {self.country=} {self.player_role=}>"
+
     class Meta:
-        verbose_name_plural = "Players"
+        verbose_name_plural = "Player Profiles"
         ordering = ["player_name"]
 
 
 class Fixture(models.Model):
-    scorecard_url = models.URLField(max_length=300, unique=True)
-    match_number = models.IntegerField()
+    scorecard_url = models.URLField(max_length=300, primary_key=True)
     match_date = models.DateField()
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    last_updated = models.DateTimeField(auto_now=True)
+    tournament_name = models.ForeignKey(Tournament, to_field="tournament_name", on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return str(self.tournament) + " - " + str(self.match_number) + " - " + str(self.match_date)
+        return str(self.tournament_name) + " - " + str(self.match_date)
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.tournament_name=} {self.match_date=}>"
 
     class Meta:
         verbose_name_plural = "Fixtures"
-        ordering = ["match_number"]
+        ordering = ["match_date"]
+
+
+class Player(models.Model):
+    player_name = models.ForeignKey(PlayerProfile, to_field="player_name", on_delete=models.CASCADE)
+    franchise_name = models.ForeignKey(Franchise, to_field="franchise_name", on_delete=models.CASCADE)
+    league_name = models.ForeignKey(League, to_field="league_name", on_delete=models.CASCADE)
+    tournament_name = models.ForeignKey(Tournament, to_field="tournament_name", on_delete=models.CASCADE)
+    power_player = models.BooleanField(default=False)
+    price = models.IntegerField(default=10)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
+
+    def __str__(self):
+        return self.player_name
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__} {self.player_name=} {self.franchise_name=} {self.league_name=} "
+            f"{self.tournament_name=} {self.power_player=} {self.price=}>"
+        )
+
+    class Meta:
+        verbose_name_plural = "Players"
+        ordering = ["player_name"]
+        unique_together = ("player_name", "franchise_name", "league_name", "tournament_name")
 
 
 class MatchPoint(models.Model):
-    match_name = models.CharField(max_length=100)
     match_date = models.DateField()
-    player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
+    player_name = models.ForeignKey(PlayerProfile, to_field="player_name", on_delete=models.CASCADE)
     batting_points = models.IntegerField()
     bowling_points = models.IntegerField()
     fielding_points = models.IntegerField()
     pom_points = models.IntegerField(null=True, blank=True)
     total_points = models.IntegerField()
-    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE, default="Banaas Premier League")
-    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+    league_name = models.ForeignKey(
+        League, to_field="league_name", on_delete=models.CASCADE, default="Banaas Premier League"
+    )
+    franchise_name = models.ForeignKey(Franchise, to_field="franchise_name", on_delete=models.CASCADE)
+    tournament_name = models.ForeignKey(Tournament, to_field="tournament_name", on_delete=models.CASCADE)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return str(self.league) + " - " + str(self.match_name) + " - " + str(self.match_date)
+        return str(self.league_name) + " - " + str(self.match_date)
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__} {self.player_name=} {self.franchise_name=} {self.league_name=} "
+            f"{self.tournament_name=} {self.match_date=}>"
+        )
 
     class Meta:
-        verbose_name_plural = "Matches"
+        verbose_name_plural = "MatchPoints"
         ordering = ["match_date", "total_points"]
-        unique_together = ("player_name", "match_date", "league")
-
-
-class Score(models.Model):
-    match_name = models.CharField(max_length=100)
-    score = models.IntegerField(null=True, blank=True, default=0)
-    player_name = models.ForeignKey(Player, to_field="player_name", on_delete=models.CASCADE)
-    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
-    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return str(self.franchise) + " - " + str(self.player_name)
-
-    class Meta:
-        verbose_name_plural = "Scores"
-        ordering = ["score"]
+        unique_together = ("player_name", "match_date", "league_name")
 
 
 class Standing(models.Model):
-    tournament = models.ForeignKey(Tournament, to_field="tournament", on_delete=models.CASCADE)
-    league = models.ForeignKey(League, to_field="league", on_delete=models.CASCADE)
-    franchise = models.ForeignKey(Franchise, to_field="franchise", on_delete=models.CASCADE)
+    tournament_name = models.ForeignKey(Tournament, to_field="tournament_name", on_delete=models.CASCADE)
+    league_name = models.ForeignKey(League, to_field="league_name", on_delete=models.CASCADE)
+    franchise_name = models.ForeignKey(Franchise, to_field="franchise_name", on_delete=models.CASCADE)
     points = models.IntegerField()
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now, editable=False)
+    last_updated = models.DateTimeField(default=timezone.now, editable=False)
 
     def __str__(self):
-        return str(self.franchise) + " - " + str(self.league) + " - " + str(self.tournament)
+        return str(self.franchise_name) + " - " + str(self.league_name) + " - " + str(self.tournament_name)
+
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__} {self.franchise_name=} {self.league_name=} {self.tournament_name=} "
+            f"{self.points=}>"
+        )
 
     class Meta:
         verbose_name_plural = "Standings"
         ordering = ["points"]
+        unique_together = ("tournament_name", "league_name", "franchise_name")

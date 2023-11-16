@@ -95,10 +95,12 @@ def prepare_final_match_point_df(request) -> None:
             match_point_model = MatchPoint()
             match_point_model.match_name = "default"  # TODO: Add match name
             match_point_model.match_date = date
-            match_point_model.league = League.objects.get(league="Banaas Premier League")  # TODO: Make Dynamic
-            match_point_model.tournament = Tournament.objects.get(tournament="ODIWC2023")  # TODO: Make Dynamic
+            match_point_model.league_name = League.objects.get(league="Banaas Premier League")  # TODO: Make Dynamic
+            match_point_model.tournament_name = Tournament.objects.get(
+                tournament_name="ODIWC2023"
+            )  # TODO: Make Dynamic
             match_point_model.player_name = Player.objects.get(player_name=row["player_name"])
-            match_point_model.franchise = Franchise.objects.get(franchise=row["franchise_id"])
+            match_point_model.franchise_name = Franchise.objects.get(franchise_name=row["franchise_name_id"])
             match_point_model.batting_points = row["Total Batting"] if "Total Batting" in merged_df.columns else 0
             match_point_model.bowling_points = row["Total Bowling"] if "Total Bowling" in merged_df.columns else 0
             match_point_model.fielding_points = row["Total Fielding"] if "Total Fielding" in merged_df.columns else 0
@@ -121,7 +123,7 @@ def prepare_final_match_point_df(request) -> None:
             match_point, created = MatchPoint.objects.update_or_create(
                 match_date=match_point_model.match_date,
                 player_name=match_point_model.player_name,
-                league=match_point_model.league,
+                league_name=match_point_model.league_name,
                 defaults={
                     "match_name": match_point_model.match_name,
                     "batting_points": match_point_model.batting_points,
@@ -129,8 +131,8 @@ def prepare_final_match_point_df(request) -> None:
                     "fielding_points": match_point_model.fielding_points,
                     "pom_points": match_point_model.pom_points,
                     "total_points": match_point_model.total_points,
-                    "franchise": match_point_model.franchise,
-                    "tournament": match_point_model.tournament,
+                    "franchise_name": match_point_model.franchise_name,
+                    "tournament_name": match_point_model.tournament_name,
                 },
             )
 
