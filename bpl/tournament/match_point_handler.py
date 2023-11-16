@@ -105,6 +105,8 @@ def prepare_final_match_point_df(request) -> None:
             if str(match_point_model.player_name) in power_players:
                 print(f"{match_point_model.player_name} is power player")
                 match_point_model.total_points = match_point_model.total_points * 2
+                if int(match_point_model.batting_points) == -35:
+                    match_point_model.total_points -= 35
             match_point, created = MatchPoint.objects.update_or_create(
                 match_date=match_point_model.match_date,
                 player_name=match_point_model.player_name,
