@@ -11,10 +11,9 @@ from rest_framework.authtoken.views import obtain_auth_token
 from bpl.tournament import views as tournament_views
 
 urlpatterns = [
-    # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path("", tournament_views.tournaments_list, name="home"),
-    path("matchpoints/", tournament_views.match_points, name="matchpoints"),
-    path("standing/", tournament_views.standing, name="standing"),
+    path("", tournament_views.TournamentView.as_view(), name="home"),
+    path("matchpoints/", tournament_views.MatchPointView.as_view(), name="matchpoints"),
+    path("standing/", tournament_views.StandingView.as_view(), name="standing"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),

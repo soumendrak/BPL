@@ -1,35 +1,34 @@
-from dateutil.utils import today
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 from bpl.tournament.standing_handler import fetch_standings
 
-from .match_point_handler import prepare_final_match_point_df
 from .models import MatchPoint, Tournament
 
 
 # Create your views here.
-@login_required
-@require_http_methods(["GET"])
-def tournaments_list(request):
-    tournaments = Tournament.objects.all()
-    return render(request, "tournaments/tournaments_dashboard.html", {"tournaments": tournaments})
+class TournamentView(LoginRequiredMixin, TemplateView):
+    login_url = "/login/"
+    redirect_field_name = "redirect_to"
+    template_name = "tournaments/tournaments_dashboard.html"
+    extra_context = {"tournaments": Tournament.objects.all()}
 
 
-@login_required
-@require_http_methods(["GET"])
-def match_points(request):
-    date = request.GET.get("date", today())
-    prepare_final_match_point_df(request)
-    _match_points = MatchPoint.objects.filter(match_date=date).order_by("-total_points")
-    return render(request, "tournaments/match_points.html", context={"match_points": _match_points})
+class MatchPointView(LoginRequiredMixin, TemplateView):
+    login_url = "/login/"
+    redirect_field_name = "redirect_to"
+    template_name = "tournaments/match_points.html"
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {"match_points": MatchPoint.objects.all()}
+        return super().get(request, *args, **kwargs)
 
 
-@login_required
-@require_http_methods(["GET"])
-def standing(request):
-    standing = fetch_standings(request)
-    # standing = standing.to_html(index=False)
-    print(f"standing: {standing}")
-    return render(request, "tournaments/standing.html", context={"standing": standing})
+class StandingView(LoginRequiredMixin, TemplateView):
+    login_url = "/login/"
+    redirect_field_name = "redirect_to"
+    template_name = "tournaments/standing.html"
+
+    def get(self, request, *args, **kwargs):
+        self.extra_context = {"standing": fetch_standings(request)}
+        return super().get(request, *args, **kwargs)
