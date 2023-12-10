@@ -3,6 +3,7 @@
 [//]: # 'Add an image at the center of the README.md'
 
 <p align="center">
+  <img src="docs/images/BPL-architecture.png" alt="BPL Architecture" width="500"/>
   <img src="docs/images/BPL_MatchPoint.png" alt="BPL Match Point" width="500"/>
   <img src="docs/images/BPL_Standings.png" alt="BPL Standings" width="500"/>
 </p>
